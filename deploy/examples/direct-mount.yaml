@@ -43,6 +43,16 @@ spec:
               mountPath: /etc/rook
             - name: ceph-admin-secret
               mountPath: /var/lib/rook-ceph-mon
+            - name: runudev
+              mountPath: /run/udev
+            - name: sys
+              mountPath: /sys
+            - name: runlvm
+              mountPath: /run/lvm
+            - name: runlocklvm
+              mountPath: /run/lock/lvm
+            - name: slash
+              mountPath: /rootfs
       # if hostNetwork: false, the "rbd map" command hangs, see https://github.com/rook/rook/issues/2021
       hostNetwork: true
       volumes:
@@ -68,3 +78,18 @@ spec:
             items:
               - key: data
                 path: mon-endpoints
+        - name: runudev
+          hostPath:
+            path: /run/udev
+        - name: sys
+          hostPath:
+            path: /sys
+        - name: runlvm
+          hostPath:
+            path: /run/lvm
+        - name: runlocklvm
+          hostPath:
+            path: /run/lock/lvm
+        - name: slash
+          hostPath:
+            path: /rootfs

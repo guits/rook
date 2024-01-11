@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rook-ceph-tools
+  name: rook-ceph-tools-debug
   namespace: rook-ceph # namespace:cluster
   labels:
     app: rook-ceph-tools
@@ -18,7 +18,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: rook-ceph-tools
-          image: quay.io/ceph/ceph:v18.2.1
+          image: docker.io/guits/ceph:rook-debug2
           command:
             - /bin/bash
             - -c
@@ -88,11 +88,12 @@ spec:
           imagePullPolicy: IfNotPresent
           tty: true
           securityContext:
-            runAsNonRoot: true
-            runAsUser: 2016
+            runAsNonRoot: false
+            runAsUser: 0
             runAsGroup: 2016
             capabilities:
               drop: ["ALL"]
+            privileged: true
           env:
             - name: ROOK_CEPH_USERNAME
               valueFrom:
@@ -107,6 +108,16 @@ spec:
             - name: ceph-admin-secret
               mountPath: /var/lib/rook-ceph-mon
               readOnly: true
+            - name: runudev
+              mountPath: /run/udev
+            - name: sys
+              mountPath: /sys
+            - name: runlvm
+              mountPath: /run/lvm
+            - name: runlocklvm
+              mountPath: /run/lock/lvm
+            - name: slash
+              mountPath: /rootfs
       volumes:
         - name: ceph-admin-secret
           secret:
@@ -123,6 +134,21 @@ spec:
                 path: mon-endpoints
         - name: ceph-config
           emptyDir: {}
+        - name: runudev
+          hostPath:
+            path: /run/udev
+        - name: sys
+          hostPath:
+            path: /sys
+        - name: runlvm
+          hostPath:
+            path: /run/lvm
+        - name: runlocklvm
+          hostPath:
+            path: /run/lock/lvm
+        - name: slash
+          hostPath:
+            path: /rootfs
       tolerations:
         - key: "node.kubernetes.io/unreachable"
           operator: "Exists"
